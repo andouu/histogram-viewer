@@ -1,8 +1,8 @@
 import streamlit as st
 
 from lib.files import get_default_root_files
-from lib.plot import root_th1f_to_plotly_histogram
-from lib.helpers import display_grid, display_log_y_checkbox
+from lib.plot import root_th1fs_to_plotly_histogram
+from lib.helpers import display_grid, display_checkbox, display_channel_selector
 
 root_files = get_default_root_files()
 
@@ -14,7 +14,15 @@ with st.sidebar:
         options=root_files,
         format_func=lambda data: data[0],
     )
-    display_log_y_checkbox(key="select_view_log_y_checkbox")
+    channels, plot_title = display_channel_selector(
+        display_mode_select_key="select_view_channel_display_select",
+        single_select_key="select_view_single_channel_select",
+        range_from_select_key="select_view_channel_range_from_select",
+        range_to_select_key="select_view_channel_range_to_select",
+        multiselect_key="select_view_channel_multiselect",
+    )
+    display_checkbox(key="select_view_log_y_checkbox", label="Log Y Scale", default=True)
+    display_checkbox(key="select_view_translucent_bars_checkbox", label="Translucent Bars", default=True)
     st.number_input(
         "Columns",
         key="select_view_columns_select",
@@ -25,7 +33,13 @@ with st.sidebar:
 runs = st.session_state["select_view_select"]
 
 displayed_runs = map(
-    lambda data: root_th1f_to_plotly_histogram(data[1], "hCharge", data[0], log_y=st.session_state["select_view_log_y_checkbox"]),
+    lambda data: root_th1fs_to_plotly_histogram(
+        data[1],
+        plot_title=f"{data[0]} ({plot_title})",
+        channels=channels,
+        log_y=st.session_state["select_view_log_y_checkbox"],
+        translucent_bars=st.session_state["select_view_translucent_bars_checkbox"]
+    ),
     runs
 )
 display_elements = list(displayed_runs)

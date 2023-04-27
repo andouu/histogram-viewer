@@ -2,8 +2,8 @@ import streamlit as st
 
 from math import ceil
 from lib.files import get_default_root_files
-from lib.plot import root_th1f_to_plotly_histogram
-from lib.helpers import display_grid, display_log_y_checkbox
+from lib.plot import root_th1fs_to_plotly_histogram
+from lib.helpers import display_grid, display_checkbox, display_range_select, display_channel_selector
 
 root_files = get_default_root_files()
 
@@ -16,25 +16,35 @@ def handle_flip_range():
 
 with st.sidebar:
     st.header("Range of Histograms View")
-    st.selectbox(
-        "From",
-        key="histogram_range_from_select",
-        options=root_files,
-        format_func=lambda data: data[0],
-    )
-    st.selectbox(
-        "To",
-        key="histogram_range_to_select",
-        options=root_files,
-        index=len(root_files) - 1,
-        format_func=lambda data: data[0],
+    display_range_select(
+        from_select_kwargs={
+            "label": "From",
+            "key": "histogram_range_from_select",
+            "options": root_files,
+            "format_func": lambda data: data[0]
+        },
+        to_select_kwargs={
+            "label": "To",
+            "key": "histogram_range_to_select",
+            "options": root_files,
+            "index": len(root_files) - 1,
+            "format_func": lambda data: data[0]
+        }
     )
     st.button(
         "Flip Range",
         key="range_view_range_flip_button",
         on_click=handle_flip_range
     )
-    display_log_y_checkbox(key="range_view_log_y_checkbox")
+    channels, plot_title = display_channel_selector(
+        display_mode_select_key="histogram_range_channel_display_select",
+        single_select_key="histogram_range_single_channel_select",
+        range_from_select_key="histogram_range_channel_range_from_select",
+        range_to_select_key="histogram_range_channel_range_to_select",
+        multiselect_key="histogram_range_channel_multiselect",
+    )
+    display_checkbox(key="range_view_log_y_checkbox", label="Log Y Scale", default=True)
+    display_checkbox(key="range_view_translucent_bars_checkbox", label="Translucent Bars", default=True)
     st.number_input(
         "Columns",
         key="range_view_columns_input",
@@ -51,7 +61,13 @@ range_end_index = root_files.index(histogram_range[1])
 num_columns = st.session_state["range_view_columns_input"]
 
 display_elements = map(
-    lambda data: root_th1f_to_plotly_histogram(data[1], "hCharge", data[0], log_y=st.session_state["range_view_log_y_checkbox"]),
+    lambda data: root_th1fs_to_plotly_histogram(
+        data[1],
+        plot_title=f"{data[0]} ({plot_title})",
+        channels=channels,
+        log_y=st.session_state["range_view_log_y_checkbox"],
+        translucent_bars=st.session_state["range_view_translucent_bars_checkbox"]
+    ),
     root_files[min(range_start_index, range_end_index) : max(range_start_index, range_end_index) + 1]
 )
 reverse_order = range_end_index < range_start_index

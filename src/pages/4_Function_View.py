@@ -1,8 +1,7 @@
 import streamlit as st
 
-from ROOT import TFile
 from lib.files import get_default_root_files
-from lib.helpers import display_newlines
+from lib.helpers import display_newlines, display_range_select
 from lib.functions.accumulators.q_vs_run_number import QvsRunNumberAccumulator
 from lib.functions.accumulators.amplitude_vs_run_number import AmplitudeVsRunNumberAccumulator
 
@@ -69,18 +68,20 @@ with st.sidebar:
                 format_func=lambda data: data[0],
             )
         case "range":
-            st.selectbox(
-                "From",
-                key="function_view_range_from_select",
-                options=root_files,
-                format_func=lambda data: data[0],
-            )
-            st.selectbox(
-                "To",
-                key="function_view_range_to_select",
-                options=root_files,
-                index=len(root_files) - 1,
-                format_func=lambda data: data[0],
+            display_range_select(
+                from_select_kwargs={
+                    "label": "From",
+                    "key": "function_view_range_from_select",
+                    "options": root_files,
+                    "format_func": lambda data: data[0]
+                },
+                to_select_kwargs={
+                    "label": "To",
+                    "key": "function_view_range_to_select",
+                    "options": root_files,
+                    "index": len(root_files) - 1,
+                    "format_func": lambda data: data[0]
+                }
             )
         case "select":
             st.multiselect(

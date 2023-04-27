@@ -2,7 +2,7 @@ from os import path
 from glob import glob
 from .path import get_file_stem
 
-ROOT_FILES_DIR = "/Users/andou/Documents/Pioneer/midas-stuff/midas_to_root/output/root/1313-1330"
+ROOT_FILES_DIR = "/Users/andou/Documents/Pioneer/midas-stuff/midas_to_root/output/root/test"
 
 def get_root_files_in_dir(dir=ROOT_FILES_DIR):
     if not path.isdir(dir):
