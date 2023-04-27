@@ -43,14 +43,14 @@ def display_newlines(num_newlines):
     for i in range(num_newlines):
         st.text("")
 
-def display_range_select(from_select_kwargs, to_select_kwargs):
+def display_side_by_side_selects(left_select_kwargs, right_select_kwargs):
     col_1, col_2 = st.columns(2)
 
     with col_1:
-        st.selectbox(**from_select_kwargs)
+        st.selectbox(**left_select_kwargs)
 
     with col_2:
-        st.selectbox(**to_select_kwargs)
+        st.selectbox(**right_select_kwargs)
 
 def display_channel_selector(
     display_mode_select_key: str,
@@ -78,14 +78,14 @@ def display_channel_selector(
                 index=1
             )
         case "range":
-            display_range_select(
-                from_select_kwargs={
+            display_side_by_side_selects(
+                left_select_kwargs={
                     "label": "From",
                     "key": range_from_select_key,
                     "options": list(range(0, 16)),
                     "index": 1
                 },
-                to_select_kwargs={
+                right_select_kwargs={
                     "label": "To",
                     "key": range_to_select_key,
                     "options": list(range(0, 16)),

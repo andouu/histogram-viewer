@@ -1,7 +1,7 @@
 import streamlit as st
 
 from lib.files import get_default_root_files
-from lib.helpers import display_newlines, display_range_select
+from lib.helpers import display_newlines, display_side_by_side_selects
 from lib.functions.accumulators.q_vs_run_number import QvsRunNumberAccumulator
 from lib.functions.accumulators.amplitude_vs_run_number import AmplitudeVsRunNumberAccumulator
 
@@ -38,9 +38,6 @@ def get_runs_to_analyze():
             raise ValueError(f"Display Type {other} is not valid!")
     return runs_to_analyze
 
-# selected_function_name = st.session_state["function_view_select"].name
-# st.markdown(f"# Displaying {selected_function_name} for All Runs")
-
 def run_accumulator():
     runs_to_analyze = get_runs_to_analyze()
 
@@ -68,14 +65,14 @@ with st.sidebar:
                 format_func=lambda data: data[0],
             )
         case "range":
-            display_range_select(
-                from_select_kwargs={
+            display_side_by_side_selects(
+                left_select_kwargs={
                     "label": "From",
                     "key": "function_view_range_from_select",
                     "options": root_files,
                     "format_func": lambda data: data[0]
                 },
-                to_select_kwargs={
+                right_select_kwargs={
                     "label": "To",
                     "key": "function_view_range_to_select",
                     "options": root_files,

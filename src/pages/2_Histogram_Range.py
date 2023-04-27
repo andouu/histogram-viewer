@@ -3,7 +3,7 @@ import streamlit as st
 from math import ceil
 from lib.files import get_default_root_files
 from lib.plot import root_th1fs_to_plotly_histogram
-from lib.helpers import display_grid, display_checkbox, display_range_select, display_channel_selector
+from lib.helpers import display_grid, display_checkbox, display_side_by_side_selects, display_channel_selector
 
 root_files = get_default_root_files()
 
@@ -16,14 +16,14 @@ def handle_flip_range():
 
 with st.sidebar:
     st.header("Range of Histograms View")
-    display_range_select(
-        from_select_kwargs={
+    display_side_by_side_selects(
+        left_select_kwargs={
             "label": "From",
             "key": "histogram_range_from_select",
             "options": root_files,
             "format_func": lambda data: data[0]
         },
-        to_select_kwargs={
+        right_select_kwargs={
             "label": "To",
             "key": "histogram_range_to_select",
             "options": root_files,
