@@ -2,7 +2,7 @@ import streamlit as st
 
 from lib.files import get_default_root_files
 from lib.plot import root_th1fs_to_plotly_histogram
-from lib.helpers import display_grid, display_checkbox, display_channel_selector
+from lib.helpers import display_grid, display_channel_selector, display_graph_checkboxes
 
 root_files = get_default_root_files()
 
@@ -21,8 +21,12 @@ with st.sidebar:
         range_to_select_key="select_view_channel_range_to_select",
         multiselect_key="select_view_channel_multiselect",
     )
-    display_checkbox(key="select_view_log_y_checkbox", label="Log Y Scale", default=True)
-    display_checkbox(key="select_view_translucent_bars_checkbox", label="Translucent Bars", default=True)
+    display_graph_checkboxes(
+        log_y_checkbox_key="select_view_log_y_checkbox",
+        translucent_bars_checkbox_key="select_view_translucent_bars_checkbox",
+        superpose_channels_checkbox_key="select_view_superpose_channels_checkbox",
+        translucent_bars_checkbox_default=True
+    )
     st.number_input(
         "Columns",
         key="select_view_columns_select",
@@ -38,7 +42,8 @@ displayed_runs = map(
         plot_title=f"{data[0]} ({plot_title})",
         channels=channels,
         log_y=st.session_state["select_view_log_y_checkbox"],
-        translucent_bars=st.session_state["select_view_translucent_bars_checkbox"]
+        translucent_bars=st.session_state["select_view_translucent_bars_checkbox"],
+        superpose_channels=st.session_state["select_view_superpose_channels_checkbox"]
     ),
     runs
 )

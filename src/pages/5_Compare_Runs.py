@@ -1,7 +1,7 @@
 import streamlit as st
 
 from lib.files import get_default_root_files
-from lib.helpers import display_side_by_side_selects, display_channel_selector, display_checkbox
+from lib.helpers import display_side_by_side_selects, display_channel_selector, display_graph_checkboxes
 from lib.plot import plot_run_overlay
 
 root_files = get_default_root_files()
@@ -29,8 +29,12 @@ with st.sidebar:
         range_to_select_key="compare_view_channel_range_to_select",
         multiselect_key="compare_view_channel_multiselect",
     )
-    display_checkbox(key="compare_view_log_y_checkbox", label="Log Y Scale", default=True)
-    display_checkbox(key="compare_view_translucent_bars_checkbox", label="Translucent Bars", default=True)
+    display_graph_checkboxes(
+        log_y_checkbox_key="compare_view_log_y_checkbox",
+        translucent_bars_checkbox_key="compare_view_translucent_bars_checkbox",
+        superpose_channels_checkbox_key="compare_view_superpose_channels_checkbox",
+        translucent_bars_checkbox_default=True
+    )
 
 selected_run_1 = st.session_state["compare_view_run_1_select"]
 selected_run_2 = st.session_state["compare_view_run_2_select"]

@@ -2,12 +2,10 @@ import streamlit as st
 
 from lib.plot import root_th1fs_to_plotly_histogram
 from lib.files import get_default_root_files
-from lib.helpers import display_checkbox, display_channel_selector
+from lib.helpers import display_channel_selector, display_graph_checkboxes
 
 root_files = get_default_root_files()
 root_files.sort(key=lambda data: data[1])
-
-# st.set_page_config(layout="centered")
 
 with st.sidebar:
     st.header("Single Histogram View")
@@ -24,8 +22,12 @@ with st.sidebar:
         range_to_select_key="single_histogram_channel_range_to_select",
         multiselect_key="single_histogram_channel_multiselect",
     )
-    display_checkbox(key="single_view_log_y_checkbox", label="Log Y Scale", default=True)
-    display_checkbox(key="single_view_translucent_bars_checkbox", label="Translucent Bars", default=True)
+    display_graph_checkboxes(
+        log_y_checkbox_key="single_view_log_y_checkbox",
+        translucent_bars_checkbox_key="single_view_translucent_bars_checkbox",
+        superpose_channels_checkbox_key="single_view_superpose_channels_checkbox",
+        translucent_bars_checkbox_default=True
+    )
 
 with st.container():
     if "single_histogram_select" in st.session_state:
@@ -38,7 +40,8 @@ with st.container():
             plot_title=plot_title,
             channels=channels,
             log_y=st.session_state["single_view_log_y_checkbox"],
-            translucent_bars=st.session_state["single_view_translucent_bars_checkbox"]
+            translucent_bars=st.session_state["single_view_translucent_bars_checkbox"],
+            superpose_channels=st.session_state["single_view_superpose_channels_checkbox"]
         )
     elif len(root_files) > 0:
         run_name = root_files[0][0]
@@ -48,7 +51,8 @@ with st.container():
             plot_title=plot_title,
             channels=channels,
             log_y=st.session_state["single_view_log_y_checkbox"],
-            translucent_bars=st.session_state["single_view_translucent_bars_checkbox"]
+            translucent_bars=st.session_state["single_view_translucent_bars_checkbox"],
+            superpose_channels=st.session_state["single_view_superpose_channels_checkbox"]
         )
         st.session_state["single_histogram_select"] = root_files[0]
 

@@ -1,6 +1,11 @@
 import streamlit as st
 
 from math import ceil
+from streamlit_extras.app_logo import add_logo
+from streamlit_extras.let_it_rain import rain
+
+def display_uw_logo():
+    add_logo("assets/uw.png", height=100)
 
 def calculate_number_of_rows(num_columns, num_elements):
     return ceil(num_elements / num_columns)
@@ -40,7 +45,7 @@ def display_checkbox(key, label, default = False, **kwargs):
     st.checkbox(label, key=key, value=st.session_state[key], **kwargs)
 
 def display_newlines(num_newlines):
-    for i in range(num_newlines):
+    for _ in range(num_newlines):
         st.text("")
 
 def display_side_by_side_selects(left_select_kwargs, right_select_kwargs):
@@ -60,65 +65,95 @@ def display_channel_selector(
     multiselect_key: str,
     label: str = "Channel Display"
 ):
-    st.selectbox(
-        label,
-        key=display_mode_select_key,
-        options=["all", "single", "range", "custom"],
-        index=3,
-        format_func=lambda option: option.capitalize()
-    )
-    match st.session_state[display_mode_select_key]:
-        case "all":
-            pass
-        case "single":
-            st.selectbox(
-                "Channel",
-                key=single_select_key,
-                options=list(range(0, 16)),
-                index=1
-            )
-        case "range":
-            display_side_by_side_selects(
-                left_select_kwargs={
-                    "label": "From",
-                    "key": range_from_select_key,
-                    "options": list(range(0, 16)),
-                    "index": 1
-                },
-                right_select_kwargs={
-                    "label": "To",
-                    "key": range_to_select_key,
-                    "options": list(range(0, 16)),
-                    "index": 3
-                }
-            )
-        case "custom":
-            st.multiselect(
-                "Channels",
-                key=multiselect_key,
-                options=list(range(0, 16)),
-                default=[1, 3],
-                format_func=lambda channel_num: "Channel " + str(channel_num)
-            )
+    def _display_select():
+        match st.session_state[display_mode_select_key]:
+            case "all":
+                pass
+            case "single":
+                st.selectbox(
+                    "Channel",
+                    key=single_select_key,
+                    options=list(range(0, 16)),
+                    index=1
+                )
+            case "range":
+                display_side_by_side_selects(
+                    left_select_kwargs={
+                        "label": "From",
+                        "key": range_from_select_key,
+                        "options": list(range(0, 16)),
+                        "index": 1
+                    },
+                    right_select_kwargs={
+                        "label": "To",
+                        "key": range_to_select_key,
+                        "options": list(range(0, 16)),
+                        "index": 3
+                    }
+                )
+            case "custom":
+                st.multiselect(
+                    "Channels",
+                    key=multiselect_key,
+                    options=list(range(0, 16)),
+                    default=[1, 3],
+                    format_func=lambda channel_num: "Channel " + str(channel_num)
+                )
+    def _get_channels_and_title():
+        match st.session_state[display_mode_select_key]:
+            case "all":
+                channels = set(range(0, 16))
+                plot_title = "Channels 0 - 16"
+            case "single":
+                selected_channel = st.session_state[single_select_key]
+                channels = set([selected_channel])
+                plot_title = "Channel " + str(selected_channel)
+            case "range":
+                bound_1 = st.session_state[range_from_select_key]
+                bound_2 = st.session_state[range_to_select_key] + 1
+                channels = sorted(set(range(bound_1, bound_2)))
+                plot_title = f"Channels {min(bound_1, bound_2)} - {max(bound_1, bound_2)}"
+            case "custom":
+                channels = sorted(set(st.session_state[multiselect_key]))
+                plot_title = "Channels " + ", ".join([str(channel) for channel in sorted(channels)])
+            case _:
+                channels = set()
+                plot_title = "Unknown"
+        
+        return (channels, plot_title)
 
-    match st.session_state[display_mode_select_key]:
-        case "all":
-            channels = set(range(0, 16))
-            plot_title = "Channels 0 - 16"
-        case "single":
-            selected_channel = st.session_state[single_select_key]
-            channels = set([selected_channel])
-            plot_title = "Channel " + str(selected_channel)
-        case "range":
-            bound_1 = st.session_state[range_from_select_key]
-            bound_2 = st.session_state[range_to_select_key]
-            channels = sorted(set(range(bound_1, bound_2)))
-            plot_title = f"Channels {min(bound_1, bound_2)} - {max(bound_1, bound_2)}"
-        case "custom":
-            channels = sorted(set(st.session_state[multiselect_key]))
-            plot_title = "Channels " + ", ".join([str(channel) for channel in sorted(channels)])
-        case _:
-            channels = set()
-            plot_title = "Unknown"
+    main_tab, etc_tab = st.tabs(["Settings", "Other"])
+
+    with main_tab:
+        st.selectbox(
+            label,
+            key=display_mode_select_key,
+            options=["all", "single", "range", "custom"],
+            index=3,
+            format_func=lambda option: option.capitalize()
+        )
+        _display_select()
     
-    return (channels, plot_title)
+    with etc_tab:
+        st.button('🎉 Celebrate!', on_click=lambda: rain(emoji="🎉",
+                                                        font_size=32,
+                                                        falling_speed=7.5,
+                                                        animation_length=5
+                                                    ))
+
+    return _get_channels_and_title()
+
+def display_graph_checkboxes(
+    log_y_checkbox_key: str,
+    translucent_bars_checkbox_key: str,
+    superpose_channels_checkbox_key: str,
+    log_y_checkbox_label: str = "Log y",
+    translucent_bars_checkbox_label: str = "Tranlucent Bars",
+    superpose_channels_checkbox_label: str = "Superpose Channels",
+    log_y_checkbox_default: bool = False,
+    translucent_bars_checkbox_default: bool = False,
+    superpose_channels_checkbox_default: bool = False
+):
+    display_checkbox(key=log_y_checkbox_key, label=log_y_checkbox_label, default=log_y_checkbox_default)
+    display_checkbox(key=translucent_bars_checkbox_key, label=translucent_bars_checkbox_label, default=translucent_bars_checkbox_default)
+    display_checkbox(key=superpose_channels_checkbox_key, label=superpose_channels_checkbox_label, default=superpose_channels_checkbox_default)

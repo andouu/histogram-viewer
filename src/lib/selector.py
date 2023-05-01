@@ -28,10 +28,14 @@ class Selector(ABC):
 
     def __init__(self, t_file):
         self.t_file = t_file
-
         self.processed_count = 0
 
     def process_events(self):
+        self.on_start()
+
+        if not self.read_object:
+            return
+        
         obj = self.t_file.Get(self.read_object)
         for event in obj:
             self.on_process(event)
