@@ -1,11 +1,13 @@
 import streamlit as st
 
 from lib.plot import root_th1fs_to_plotly_histogram
-from lib.files import get_default_root_files
+from lib.files import root_files_to_runs
 from lib.helpers import display_channel_selector, display_graph_checkboxes
 
-root_files = get_default_root_files()
+root_files = root_files_to_runs()
 root_files.sort(key=lambda data: data[1])
+
+st.set_page_config(layout="wide")
 
 with st.sidebar:
     st.header("Single Histogram View")

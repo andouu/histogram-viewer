@@ -1,10 +1,12 @@
 import streamlit as st
 
-from lib.files import get_default_root_files
+from lib.files import root_files_to_runs
 from lib.plot import root_th1fs_to_plotly_histogram
 from lib.helpers import display_grid, display_channel_selector, display_graph_checkboxes
 
-root_files = get_default_root_files()
+root_files = root_files_to_runs()
+
+st.set_page_config(layout="wide")
 
 with st.sidebar:
     st.header("Select Histogram View")

@@ -88,29 +88,25 @@ def root_th1fs_to_plotly_histogram(
 
 # ================================================================================================
 
-def plot_run_overlay(run_1, run_2, channels: set[int], channels_string: str, log_y: bool = False, translucent_bars: bool = False):
-    run_1_t_file = TFile.Open(run_1[1])
-    run_2_t_file = TFile.Open(run_2[1])
+def run_overlay_plot(runs, channels: set[int], channels_string: str, log_y: bool = False, translucent_bars: bool = False):
+    t_files = [TFile.Open(run[1], 'r') for run in runs]
 
-    run_1_data = pd.concat(_root_charge_histograms_to_dataframes(run_1_t_file, channels))
-    run_2_data = pd.concat(_root_charge_histograms_to_dataframes(run_2_t_file, channels))
+    run_data = [pd.concat(_root_charge_histograms_to_dataframes(t_file, channels)) for t_file in t_files]
 
     fig = go.Figure()
 
-    fig.add_trace(go.Bar(x=run_1_data["x"],
-                         y=run_1_data["y"],
-                         name=run_1[0],
-                         marker={"opacity": 0.65 if translucent_bars else 1}))
+    for run_data, run in zip(run_data, runs):
+        fig.add_trace(go.Bar(x=run_data["x"],
+                             y=run_data["y"],
+                             name=run[0],
+                             marker={"opacity": 0.65 if translucent_bars else 1}))
     
-    fig.add_trace(go.Bar(x=run_2_data["x"],
-                         y=run_2_data["y"],
-                         name=run_2[0],
-                         marker={"opacity": 0.65 if translucent_bars else 1}))
-    
+    runs_string = ", ".join([run[0] for run in runs])
+
     fig.update_layout(
         barmode="overlay",
         title={
-            "text": f"Overlay of {run_1[0]} on {run_2[0]} ({channels_string})"
+            "text": f"Overlaying {runs_string} for ({channels_string})"
         }
     )
 

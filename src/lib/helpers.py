@@ -5,7 +5,7 @@ from streamlit_extras.app_logo import add_logo
 from streamlit_extras.let_it_rain import rain
 
 def display_uw_logo():
-    add_logo("assets/uw.png", height=100)
+    add_logo("assets/uw.png", height=110)
 
 def calculate_number_of_rows(num_columns, num_elements):
     return ceil(num_elements / num_columns)
@@ -137,23 +137,31 @@ def display_channel_selector(
     with etc_tab:
         st.button('🎉 Celebrate!', on_click=lambda: rain(emoji="🎉",
                                                         font_size=32,
-                                                        falling_speed=7.5,
-                                                        animation_length=5
+                                                        falling_speed=5,
+                                                        animation_length=1
                                                     ))
 
     return _get_channels_and_title()
 
 def display_graph_checkboxes(
-    log_y_checkbox_key: str,
-    translucent_bars_checkbox_key: str,
-    superpose_channels_checkbox_key: str,
+    log_y_checkbox_key: str = "",
+    translucent_bars_checkbox_key: str = "",
+    superpose_channels_checkbox_key: str = "",
     log_y_checkbox_label: str = "Log y",
     translucent_bars_checkbox_label: str = "Tranlucent Bars",
     superpose_channels_checkbox_label: str = "Superpose Channels",
     log_y_checkbox_default: bool = False,
     translucent_bars_checkbox_default: bool = False,
-    superpose_channels_checkbox_default: bool = False
+    superpose_channels_checkbox_default: bool = False,
+    show_log_y_checkbox: bool = True,
+    show_translucent_bars_checkbox: bool = True,
+    show_superpose_channels_checkbox: bool = True,
 ):
-    display_checkbox(key=log_y_checkbox_key, label=log_y_checkbox_label, default=log_y_checkbox_default)
-    display_checkbox(key=translucent_bars_checkbox_key, label=translucent_bars_checkbox_label, default=translucent_bars_checkbox_default)
-    display_checkbox(key=superpose_channels_checkbox_key, label=superpose_channels_checkbox_label, default=superpose_channels_checkbox_default)
+    if show_log_y_checkbox:
+        display_checkbox(key=log_y_checkbox_key, label=log_y_checkbox_label, default=log_y_checkbox_default)
+    
+    if show_translucent_bars_checkbox:
+        display_checkbox(key=translucent_bars_checkbox_key, label=translucent_bars_checkbox_label, default=translucent_bars_checkbox_default)
+    
+    if show_superpose_channels_checkbox:
+        display_checkbox(key=superpose_channels_checkbox_key, label=superpose_channels_checkbox_label, default=superpose_channels_checkbox_default)

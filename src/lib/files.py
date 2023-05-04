@@ -10,8 +10,8 @@ def get_root_files_in_dir(dir=ROOT_FILES_DIR):
     files = glob(path.join(dir, '*.root'))
     return files
 
-def get_default_root_files():
-    data = [(get_file_stem(path), path) for path in get_root_files_in_dir()]
+def root_files_to_runs(dir=ROOT_FILES_DIR):
+    data = [(get_file_stem(path), path) for path in get_root_files_in_dir(dir)]
     data.sort(key=lambda tuple: tuple[1])
-
+    
     return data

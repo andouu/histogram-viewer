@@ -1,13 +1,12 @@
 import streamlit as st
 
-from lib.files import get_default_root_files
+from lib.files import root_files_to_runs
 from lib.helpers import display_newlines, display_side_by_side_selects
 from lib.functions.accumulators.q_vs_run_number import QvsRunNumberAccumulator
-from lib.functions.accumulators.amplitude_vs_run_number import AmplitudeVsRunNumberAccumulator
 
 st.set_page_config(layout="wide")
 
-root_files = get_default_root_files()
+root_files = root_files_to_runs()
 
 @st.cache_data
 def get_available_functions():
@@ -31,14 +30,19 @@ def get_runs_to_analyze():
             start_index = min(selected_run_indices)
             end_index = max(selected_run_indices)
 
-            runs_to_analyze = root_files[start_index : end_index]
+            runs_to_analyze = root_files[start_index : end_index + 1]
         case "select":
             runs_to_analyze = st.session_state["function_view_select_histograms_select"]
         case other:
             raise ValueError(f"Display Type {other} is not valid!")
     return runs_to_analyze
 
+def set_updated_state(new_value):
+    st.session_state["function_view_changed"] = new_value
+
 def run_accumulator():
+    set_updated_state(False)
+
     runs_to_analyze = get_runs_to_analyze()
 
     selected_accumulator = st.session_state["function_view_select"]
@@ -52,6 +56,7 @@ with st.sidebar:
         key="function_view_display_select",
         options=["all", "single", "range", "select"],
         format_func=lambda option: option.capitalize(),
+        on_change=lambda: set_updated_state(True)
     )
 
     match st.session_state["function_view_display_select"]:
@@ -63,6 +68,7 @@ with st.sidebar:
                 key="function_view_single_histogram_select",
                 options=root_files,
                 format_func=lambda data: data[0],
+                on_change=lambda: set_updated_state(True)
             )
         case "range":
             display_side_by_side_selects(
@@ -70,14 +76,16 @@ with st.sidebar:
                     "label": "From",
                     "key": "function_view_range_from_select",
                     "options": root_files,
-                    "format_func": lambda data: data[0]
+                    "format_func": lambda data: data[0],
+                    "on_change": lambda: set_updated_state(True)
                 },
                 right_select_kwargs={
                     "label": "To",
                     "key": "function_view_range_to_select",
                     "options": root_files,
                     "index": len(root_files) - 1,
-                    "format_func": lambda data: data[0]
+                    "format_func": lambda data: data[0],
+                    "on_change": lambda: set_updated_state(True)
                 }
             )
         case "select":
@@ -86,14 +94,18 @@ with st.sidebar:
                 key="function_view_select_histograms_select",
                 options=root_files,
                 format_func=lambda data: data[0],
+                on_change=lambda: set_updated_state(True)
             )
-
     st.selectbox(
         "function",
         key="function_view_select",
         options=functions,
-        format_func=lambda accumulator: accumulator.name
+        format_func=lambda accumulator: accumulator.name,
+        on_change=lambda: set_updated_state(True)
     )
+    if "function_view_changed" in st.session_state:
+        if st.session_state["function_view_changed"]:
+            st.text("Press run to update")
     st.button("Run", on_click=run_accumulator)
 
 runs_to_analyze = get_runs_to_analyze()
