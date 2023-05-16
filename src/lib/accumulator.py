@@ -44,7 +44,7 @@ class SelectorAccumulator(ABC):
             selector.process_events()
             
             self.processed_count += 1
-            progress_bar.progress(self.processed_count / len(self.selectors), text=f"Processed {self.processed_count} out of {len(self.selectors)} Events")
+            progress_bar.progress(self.processed_count / len(self.selectors), text=f"Processed {self.processed_count} out of {len(self.selectors)} runs")
 
         self._set_result()
         self.on_complete()

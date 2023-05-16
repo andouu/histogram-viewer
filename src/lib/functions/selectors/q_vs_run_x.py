@@ -4,19 +4,20 @@ import numpy as np
 from ROOT import TF1, TObject
 from ...selector import Selector
 
-class QvsRunNumberSelector(Selector):
-    name = "Q vs. Run #"
+class QvsRunXSelector(Selector):
+    name = "Q vs. Run x"
     read_object = None
 
     def __init__(self, t_file, run_name):
         super().__init__(t_file)
         self.channel_1_peak_bin = None
         self.run_name = run_name
+        self.run_x = None
         self.channel_1_mus = ()
         self.channel_3_mus = ()
 
     def get_x(self):
-        return self.run_name
+        return (self.run_x, self.run_name)
 
     def get_y(self):
         return {
@@ -61,8 +62,19 @@ class QvsRunNumberSelector(Selector):
             _get_mu(left_peak_bounds),
             _get_mu(right_peak_bounds)
         )
+    
+    def _get_run_x(self):
+        inpt_tree = self.t_file.Get("INPT")
+        all_measurements = []
+        for entry in inpt_tree:
+            data = entry.data
+            measurement = data[1]
+            all_measurements.append(measurement)
+
+        return max(all_measurements)
 
     def on_start(self):
+        self.run_x = self._get_run_x()
         self.channel_1_mus = self._fit(1)
         self.channel_3_mus = self._fit(3)
     

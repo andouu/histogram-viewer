@@ -3,6 +3,7 @@ import streamlit as st
 from lib.files import root_files_to_runs
 from lib.helpers import display_newlines, display_side_by_side_selects
 from lib.functions.accumulators.q_vs_run_number import QvsRunNumberAccumulator
+from lib.functions.accumulators.q_vs_run_x import QvsRunXAccumulator
 
 st.set_page_config(layout="wide")
 
@@ -12,7 +13,7 @@ root_files = root_files_to_runs()
 def get_available_functions():
     return [
         QvsRunNumberAccumulator(),
-        AmplitudeVsRunNumberAccumulator(),
+        QvsRunXAccumulator(),
     ]
 
 functions = get_available_functions()

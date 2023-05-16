@@ -27,14 +27,13 @@ def get_default_root_files():
 root_files = get_default_root_files()
 
 t_files = [ROOT.TFile.Open(run[1], "r") for run in root_files]
-hists = [t_file.Get("channel_1_histogram") for t_file in t_files]
 
 def main():
-    for hist in hists:
-        hist.Fit("gaus", "0Q", "", 0, 30)
-        f = hist.GetFunction("gaus")
-        print(f.GetParameter(0))
-        break
+    t_file = t_files[0]
+    inpt_tree = t_file.Get("INPT")
+    print(inpt_tree.GetEntries())
+    histogram = t_file.Get("channel_1_histogram")
+    print(histogram.GetEntries())
 
 if __name__ == "__main__":
     main()
