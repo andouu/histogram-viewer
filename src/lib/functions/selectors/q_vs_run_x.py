@@ -65,13 +65,23 @@ class QvsRunXSelector(Selector):
     
     def _get_run_x(self):
         inpt_tree = self.t_file.Get("INPT")
-        all_measurements = []
+        measurement_counts = {}
         for entry in inpt_tree:
             data = entry.data
             measurement = data[1]
-            all_measurements.append(measurement)
+            if measurement in measurement_counts:
+                measurement_counts[measurement] += 1
+            else:
+                measurement_counts[measurement] = 1
 
-        return max(all_measurements)
+        highest_count = -1
+        highest_count_measurement = None
+        for measurement, count in measurement_counts.items():
+            if count > highest_count:
+                highest_count = count
+                highest_count_measurement = measurement
+        
+        return highest_count_measurement
 
     def on_start(self):
         self.run_x = self._get_run_x()
