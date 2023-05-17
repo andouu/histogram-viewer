@@ -46,7 +46,7 @@ st.markdown(f"""
 overlay = run_overlay_plot(
     [selected_run_1, selected_run_2],
     channels=channels,
-    channels_string=plot_title,
+    plot_title=plot_title,
     log_y=st.session_state["compare_view_log_y_checkbox"],
     translucent_bars=st.session_state["compare_view_translucent_bars_checkbox"],
 )

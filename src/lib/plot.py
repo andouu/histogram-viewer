@@ -9,14 +9,17 @@ from ROOT import TFile
 # Helper Functions
 # -----
 
+def _root_charge_histogram_to_dataframe(histogram):
+    num_bins = histogram.GetNbinsX()
+    bins = [histogram.GetBinCenter(i) for i in range(1, num_bins + 1)]
+    values = [histogram.GetBinContent(i) for i in range(1, num_bins + 1)]
+    return pd.DataFrame({"x": bins, "y": values})
+
 def _root_charge_histograms_to_dataframes(t_file, channels):
     histograms = [t_file.Get(f"channel_{channel}_histogram") for channel in channels]
     dataframes = []
     for histogram in histograms:
-        num_bins = histogram.GetNbinsX()
-        bins = [histogram.GetBinCenter(i) for i in range(1, num_bins + 1)]
-        values = [histogram.GetBinContent(i) for i in range(1, num_bins + 1)]
-        dataframes.append(pd.DataFrame({"x": bins, "y": values}))
+        dataframes.append(_root_charge_histogram_to_dataframe(histogram))
 
     return dataframes
 
@@ -88,7 +91,7 @@ def root_th1fs_to_plotly_histogram(
 
 # ================================================================================================
 
-def run_overlay_plot(runs, channels: set[int], channels_string: str, log_y: bool = False, translucent_bars: bool = False):
+def run_overlay_plot(runs, plot_title: str, channels: set[int], log_y: bool = False, translucent_bars: bool = False):
     t_files = [TFile.Open(run[1], 'r') for run in runs]
 
     run_data = [pd.concat(_root_charge_histograms_to_dataframes(t_file, channels)) for t_file in t_files]
@@ -106,7 +109,7 @@ def run_overlay_plot(runs, channels: set[int], channels_string: str, log_y: bool
     fig.update_layout(
         barmode="overlay",
         title={
-            "text": f"Overlaying {runs_string} for ({channels_string})"
+            "text": f"Overlaying {runs_string} for ({plot_title})"
         }
     )
 

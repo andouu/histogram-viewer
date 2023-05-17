@@ -30,10 +30,9 @@ t_files = [ROOT.TFile.Open(run[1], "r") for run in root_files]
 
 def main():
     t_file = t_files[0]
-    inpt_tree = t_file.Get("INPT")
-    print(inpt_tree.GetEntries())
-    histogram = t_file.Get("channel_1_histogram")
-    print(histogram.GetEntries())
+    hist = t_file.Get("channel_1_histogram")
+    hist.Fit("gaus", "", "", 31, 35)
+    f = hist.GetFunction("gaus")
 
 if __name__ == "__main__":
     main()

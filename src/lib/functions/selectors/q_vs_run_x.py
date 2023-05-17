@@ -10,9 +10,12 @@ class QvsRunXSelector(Selector):
 
     def __init__(self, t_file, run_name):
         super().__init__(t_file)
-        self.channel_1_peak_bin = None
+        self.channel_1_peak_ranges = ()
+        self.channel_3_peak_ranges = ()
+
         self.run_name = run_name
         self.run_x = None
+
         self.channel_1_mus = ()
         self.channel_3_mus = ()
 
@@ -33,6 +36,11 @@ class QvsRunXSelector(Selector):
 
         peak_1_range = (8.71, 9.69) if channel == 1 else (31, 35)
         peak_2_range = (9.86, 10.8) if channel == 1 else (35, 40)
+
+        if channel == 1:
+            self.channel_1_peak_ranges = (peak_1_range, peak_2_range)
+        else:
+            self.channel_3_peak_ranges = (peak_1_range, peak_2_range)
         
         def _get_bounds(search_range):
             bin_width = histogram.GetBinWidth(0)

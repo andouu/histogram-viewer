@@ -1,9 +1,12 @@
 import streamlit as st
 import pandas as pd
 import altair as alt
+import plotly.graph_objects as go
+import plotly.figure_factory as ff
 
 from ...accumulator import SelectorAccumulator
 from ..selectors.q_vs_run_x import QvsRunXSelector
+from ...plot import _root_charge_histogram_to_dataframe, root_th1fs_to_plotly_histogram
 
 class QvsRunXAccumulator(SelectorAccumulator):
     name = "Q vs Run x"
@@ -22,7 +25,40 @@ class QvsRunXAccumulator(SelectorAccumulator):
             tooltip=['Run Name', 'Channel', 'Run x', 'Q']
         )
 
-        self._result = lambda: st.altair_chart(bar_chart, use_container_width=True)
+        selector = self.selectors[0]
+        channel_1_peak_1_range, channel_1_peak_2_range = selector.channel_1_peak_ranges
+        channel_3_peak_1_range, channel_3_peak_2_range = selector.channel_3_peak_ranges
+
+        t_file = selector.t_file
+
+        channel_1_histogram = t_file.Get('channel_1_histogram')
+        channel_3_histogram = t_file.Get('channel_3_histogram')
+
+        channel_1_dataframe = _root_charge_histogram_to_dataframe(channel_1_histogram)
+        channel_3_dataframe = _root_charge_histogram_to_dataframe(channel_3_histogram)
+
+        peak_ranges_df = pd.concat([channel_1_dataframe, channel_3_dataframe])[
+            channel_1_dataframe.x.between(left=channel_1_peak_1_range[0], right=channel_1_peak_1_range[1]) |
+            channel_1_dataframe.x.between(left=channel_1_peak_2_range[0], right=channel_1_peak_2_range[1]) |
+            channel_3_dataframe.x.between(left=channel_3_peak_1_range[0], right=channel_3_peak_1_range[1]) |
+            channel_3_dataframe.x.between(left=channel_3_peak_2_range[0], right=channel_3_peak_2_range[1])
+        ]
+
+        run = self.run_list[0]
+        channels_fig = root_th1fs_to_plotly_histogram(run[1], "Channels 1, 3", set([1, 3]))
+
+        def _display_result():
+            with st.container():
+                st.altair_chart(bar_chart, use_container_width=True)
+                st.plotly_chart(channels_fig.add_traces([
+                    go.Bar(
+                        x=peak_ranges_df["x"],
+                        y=peak_ranges_df["y"],
+                        name="Peak Fit Ranges"
+                    ),
+                ]), use_container_width=True)
+
+        self._result = _display_result
 
     def on_start(self):
         pass

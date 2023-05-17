@@ -18,7 +18,7 @@ class SelectorAccumulator(ABC):
     @abstractmethod
     def _set_result(self):
         pass
-
+    
     def get_result(self):
         return self._result
 
@@ -35,8 +35,9 @@ class SelectorAccumulator(ABC):
         pass
 
     def accumulate(self, run_list):
-        t_files = self._runs_as_t_files(run_list)
-        self.selectors = self._t_files_as_selectors(t_files, run_list)
+        self.run_list = run_list
+        self.t_files = self._runs_as_t_files(run_list)
+        self.selectors = self._t_files_as_selectors(self.t_files, run_list)
         
         progress_bar = st.sidebar.progress(0.0, text="Reading TFiles...")
         for selector in self.selectors:
