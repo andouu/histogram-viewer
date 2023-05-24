@@ -2,6 +2,7 @@ import streamlit as st
 
 from abc import ABC, abstractmethod
 from ROOT import TFile
+from .run import Run
 
 class SelectorAccumulator(ABC):
     @property
@@ -34,7 +35,7 @@ class SelectorAccumulator(ABC):
     def on_complete(self):
         pass
 
-    def accumulate(self, run_list):
+    def accumulate(self, run_list: list[Run]):
         self.run_list = run_list
         self.t_files = self._runs_as_t_files(run_list)
         self.selectors = self._t_files_as_selectors(self.t_files, run_list)

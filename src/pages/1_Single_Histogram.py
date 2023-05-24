@@ -3,9 +3,9 @@ import streamlit as st
 from lib.plot import root_th1fs_to_plotly_histogram
 from lib.files import root_files_to_runs
 from lib.helpers import display_channel_selector, display_graph_checkboxes
+from lib.run import Run
 
-root_files = root_files_to_runs()
-root_files.sort(key=lambda data: data[1])
+runs = root_files_to_runs()
 
 st.set_page_config(layout="wide")
 
@@ -14,8 +14,8 @@ with st.sidebar:
     st.selectbox(
         "Histogram",
         key="single_histogram_select",
-        options=root_files,
-        format_func=lambda data: data[0],
+        options=runs,
+        format_func=lambda run: run.name,
     )
     channels, plot_title = display_channel_selector(
         display_mode_select_key="single_histogram_channel_display_select",
@@ -33,30 +33,12 @@ with st.sidebar:
 
 with st.container():
     if "single_histogram_select" in st.session_state:
-        root_file_data = st.session_state["single_histogram_select"]
-        run_name = root_file_data[0]
-        file_url = root_file_data[1]
+        run: Run = st.session_state["single_histogram_select"]
+        histogram = root_th1fs_to_plotly_histogram(run, st.session_state["single_view_log_y_checkbox"])
+    elif len(runs) > 0:
+        run: Run = runs[0]
+        histogram = root_th1fs_to_plotly_histogram(run)
+        st.session_state["single_histogram_select"] = run
 
-        histogram = root_th1fs_to_plotly_histogram(
-            file_url,
-            plot_title=plot_title,
-            channels=channels,
-            log_y=st.session_state["single_view_log_y_checkbox"],
-            translucent_bars=st.session_state["single_view_translucent_bars_checkbox"],
-            superpose_channels=st.session_state["single_view_superpose_channels_checkbox"]
-        )
-    elif len(root_files) > 0:
-        run_name = root_files[0][0]
-        file_url = root_files[0][1]
-        histogram = root_th1fs_to_plotly_histogram(
-            file_url,
-            plot_title=plot_title,
-            channels=channels,
-            log_y=st.session_state["single_view_log_y_checkbox"],
-            translucent_bars=st.session_state["single_view_translucent_bars_checkbox"],
-            superpose_channels=st.session_state["single_view_superpose_channels_checkbox"]
-        )
-        st.session_state["single_histogram_select"] = root_files[0]
-
-    st.markdown("# Displaying " + run_name)
+    st.markdown("# Displaying " + run.name)
     st.plotly_chart(histogram, use_container_width=True)

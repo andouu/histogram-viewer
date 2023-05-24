@@ -148,7 +148,7 @@ def display_graph_checkboxes(
     translucent_bars_checkbox_key: str = "",
     superpose_channels_checkbox_key: str = "",
     log_y_checkbox_label: str = "Log y",
-    translucent_bars_checkbox_label: str = "Tranlucent Bars",
+    translucent_bars_checkbox_label: str = "Translucent Bars",
     superpose_channels_checkbox_label: str = "Superpose Channels",
     log_y_checkbox_default: bool = False,
     translucent_bars_checkbox_default: bool = False,

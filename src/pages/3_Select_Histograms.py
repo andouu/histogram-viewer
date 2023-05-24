@@ -3,8 +3,9 @@ import streamlit as st
 from lib.files import root_files_to_runs
 from lib.plot import root_th1fs_to_plotly_histogram
 from lib.helpers import display_grid, display_channel_selector, display_graph_checkboxes
+from lib.run import Run
 
-root_files = root_files_to_runs()
+runs = root_files_to_runs()
 
 st.set_page_config(layout="wide")
 
@@ -13,8 +14,8 @@ with st.sidebar:
     st.multiselect(
         "Select",
         key="select_view_select",
-        options=root_files,
-        format_func=lambda data: data[0],
+        options=runs,
+        format_func=lambda run: run.name,
     )
     channels, plot_title = display_channel_selector(
         display_mode_select_key="select_view_channel_display_select",
@@ -36,18 +37,11 @@ with st.sidebar:
         step=1,
     )
 
-runs = st.session_state["select_view_select"]
+selected_runs: list[Run] = st.session_state["select_view_select"]
 
 displayed_runs = map(
-    lambda data: root_th1fs_to_plotly_histogram(
-        data[1],
-        plot_title=f"{data[0]} ({plot_title})",
-        channels=channels,
-        log_y=st.session_state["select_view_log_y_checkbox"],
-        translucent_bars=st.session_state["select_view_translucent_bars_checkbox"],
-        superpose_channels=st.session_state["select_view_superpose_channels_checkbox"]
-    ),
-    runs
+    lambda data: root_th1fs_to_plotly_histogram(data, log_y=st.session_state["select_view_log_y_checkbox"]),
+    selected_runs
 )
 display_elements = list(displayed_runs)
 
@@ -55,12 +49,12 @@ num_displayed_runs = len(display_elements)
 if num_displayed_runs == 0:
     st.markdown("# No Runs Selected")
 elif num_displayed_runs == 1:
-    st.markdown(f"# Displaying {runs[0][0]}")
+    st.markdown(f"# Displaying {selected_runs[0].name}")
 elif num_displayed_runs < 3:
-    display_string = ", ".join([run[0] for run in runs])
+    display_string = ", ".join([run.name for run in selected_runs])
     st.markdown("# Displaying " + display_string)
 else:
-    display_string = ", ".join([run[0] for run in runs][0 : 2]) + f", (+ {len(runs) - 2} more)"
+    display_string = ", ".join([run.name for run in selected_runs][0 : 2]) + f", (+ {len(selected_runs) - 2} more)"
     st.markdown("# Displaying " + display_string)
 
 with st.spinner("Loading Histograms..."):
