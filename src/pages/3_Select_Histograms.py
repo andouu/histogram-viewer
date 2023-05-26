@@ -2,7 +2,7 @@ import streamlit as st
 
 from lib.files import root_files_to_runs
 from lib.plot import root_th1fs_to_plotly_histogram
-from lib.helpers import display_grid, display_channel_selector, display_graph_checkboxes
+from lib.helpers import display_grid, display_graph_checkboxes
 from lib.run import Run
 
 runs = root_files_to_runs()
@@ -17,19 +17,7 @@ with st.sidebar:
         options=runs,
         format_func=lambda run: run.name,
     )
-    channels, plot_title = display_channel_selector(
-        display_mode_select_key="select_view_channel_display_select",
-        single_select_key="select_view_single_channel_select",
-        range_from_select_key="select_view_channel_range_from_select",
-        range_to_select_key="select_view_channel_range_to_select",
-        multiselect_key="select_view_channel_multiselect",
-    )
-    display_graph_checkboxes(
-        log_y_checkbox_key="select_view_log_y_checkbox",
-        translucent_bars_checkbox_key="select_view_translucent_bars_checkbox",
-        superpose_channels_checkbox_key="select_view_superpose_channels_checkbox",
-        translucent_bars_checkbox_default=True
-    )
+    display_graph_checkboxes(log_y_checkbox_key="select_view_log_y_checkbox")
     st.number_input(
         "Columns",
         key="select_view_columns_select",

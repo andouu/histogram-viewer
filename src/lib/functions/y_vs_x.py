@@ -46,6 +46,7 @@ class AnyXAnyY(GraphingFunction):
     def __init__(self):
         super().__init__()
         self._update_funcs()
+        self.invalid_points = {}
 
     def _update_funcs(self):
         if not current_process().name == "MainProcess":
@@ -112,6 +113,24 @@ class AnyXAnyY(GraphingFunction):
                 except BrokenProcessPool as err:
                     raise Exception(err)
         return results
+    
+    def _prune_data(self) -> None:
+        indices_to_delete = []
+        x_axis_name = self.x_func.name
+        y_axis_name = self.y_func.name
+        self.invalid_points = { x_axis_name: [], y_axis_name: [] }
+
+        for i, data_point in enumerate(zip(self.x, self.y)):
+            x, y = data_point
+            if x is None or y is None:
+                self.invalid_points[x_axis_name].append(x)
+                self.invalid_points[y_axis_name].append(y)
+                indices_to_delete.append(i)
+
+        indices_to_delete.sort(reverse=True)
+        for index in indices_to_delete:
+            del self.x[index]
+            del self.y[index]
 
     def accumulate(self, runs):
         MULTIPROCESS = False
@@ -131,6 +150,8 @@ class AnyXAnyY(GraphingFunction):
             self.on_end()
         else:
             super().accumulate(runs)
+        
+        self._prune_data()
 
     def data_as_dataframe(self):
         def _match(x, y):
@@ -184,7 +205,8 @@ class AnyXAnyY(GraphingFunction):
             x=f"{x_func_name}:{x_func_data_type}",
             color="Run Name:N",
             tooltip=['Run Name', x_func_name, y_func_name],
-        )
+        ).interactive()
+
         if self.y_func.data_type is AltairDataType.QUANTITATIVE:
             y_axis_bounds = [dataframe[y_func_name].min() - 1, dataframe[y_func_name].max() + 1]
             bar_chart.encoding.y.scale = alt.Scale(domain=y_axis_bounds)
@@ -192,4 +214,13 @@ class AnyXAnyY(GraphingFunction):
             x_axis_bounds = [dataframe[x_func_name].min() - 1, dataframe[x_func_name].max() + 1]
             bar_chart.encoding.x.scale = alt.Scale(domain=x_axis_bounds)
         
-        st.altair_chart(bar_chart, use_container_width=True)
+        with st.container():
+            st.altair_chart(bar_chart, use_container_width=True)
+            if len(self.invalid_points.keys()) > 0:
+                first_key = next(iter(self.invalid_points))
+                num_invalid_points = len(self.invalid_points[first_key])
+                st.text(f"There are {num_invalid_points} invalid points.")
+
+                df = pd.DataFrame(self.invalid_points)
+                df.index.name = "Invalid Points"
+                st.dataframe(df, use_container_width=True)

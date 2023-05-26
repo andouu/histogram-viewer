@@ -22,8 +22,7 @@ def _fit(histogram, center: float, percent_margin: float = 4):
 
 def _single_mu(run: Run):
     t_file = TFile.Open(run.path)
-    t_tree = t_file.Get("T")
-    data = q_branch_to_dataframe(t_tree)
+    data = q_branch_to_dataframe(t_file)
     t_file.Close()
     histogram, bin_edges = np.histogram(data.charges.tolist(), bins=128)
     max_count_bin_index = np.argmax(histogram)
@@ -33,16 +32,19 @@ def _single_mu(run: Run):
 
 def _multi_mu(run: Run):
     t_file = TFile.Open(run.path)
-    data: pd.DataFrame = q_branch_to_dataframe(t_file.Get("T"))
+    data: pd.DataFrame = q_branch_to_dataframe(t_file)
     t_file.Close()
 
     search_range = run.peak_search_range
     data = data[data.charges.between(left=search_range[0], right=search_range[1])]
 
+    if len(data) <= 1:
+        return None
+
     histogram, bin_edges = np.histogram(data.charges, bins=128, density=True)
 
     x_axis = np.linspace(bin_edges.min(), bin_edges.max(), 128)
-    st.write(data.charges)
+    
     kde = stats.gaussian_kde(data.charges)
     kde_curve = kde.pdf(x_axis)
 
@@ -54,7 +56,7 @@ def _multi_mu(run: Run):
     return [coordinate[0] for coordinate in two_peaks]
 
 
-def get_peaks(t_file, run: Run, force_cache: bool = False):
+def get_peaks(t_file: TFile, run: Run, force_cache: bool = False):
     if run.peak_type is PeakType.SINGLE:
         return _single_mu(run)
     else:
