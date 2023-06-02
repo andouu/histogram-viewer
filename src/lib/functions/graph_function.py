@@ -18,7 +18,6 @@ class AltairDataType(Enum):
 class Selector():
     name: str
     func: Callable[[TFile, Run], Any]
-    data_type: AltairDataType
 
 class GraphingFunction(ABC):
     name: str = "Graphing Function"

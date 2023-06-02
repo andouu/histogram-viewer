@@ -1,7 +1,7 @@
 import os
 import streamlit as st
 import pandas as pd
-import altair as alt
+import plotly.express as px
 
 from ROOT import TFile
 from typing import Callable, Any
@@ -34,12 +34,10 @@ class AnyXAnyY(GraphingFunction):
         Selector(
             name="Q",
             func=get_q,
-            data_type=AltairDataType.QUANTITATIVE
         ),
         Selector(
             name="Run Name",
             func=get_run_name,
-            data_type=AltairDataType.NOMINAL
         )
     ]
 
@@ -174,6 +172,7 @@ class AnyXAnyY(GraphingFunction):
         data = {
             x_func_name: [],
             y_func_name: [],
+            "Crystal Type": []
         }
 
         # Only write run name if it's not already one of the axes
@@ -189,37 +188,24 @@ class AnyXAnyY(GraphingFunction):
             if write_run_name:
                 data["Run Name"].extend([run.name] * (len(formatted_x) + len(formatted_y)))
 
+            data["Crystal Type"].extend([run.crystal_type.value] * len(formatted_x))
+
         return pd.DataFrame(data)
 
     def graph(self):
         dataframe = self.data_as_dataframe()
 
-        y_func_name = self.y_func.name
-        y_func_data_type = self.y_func.data_type.value
-
         x_func_name = self.x_func.name
-        x_func_data_type = self.x_func.data_type.value
-
-        bar_chart = alt.Chart(dataframe, title=f"{y_func_name} vs {x_func_name}").mark_circle().encode(
-            y=f"{y_func_name}:{y_func_data_type}",
-            x=f"{x_func_name}:{x_func_data_type}",
-            color="Run Name:N",
-            tooltip=['Run Name', x_func_name, y_func_name],
-        ).interactive()
-
-        if self.y_func.data_type is AltairDataType.QUANTITATIVE:
-            y_axis_bounds = [dataframe[y_func_name].min() - 1, dataframe[y_func_name].max() + 1]
-            bar_chart.encoding.y.scale = alt.Scale(domain=y_axis_bounds)
-        if self.x_func.data_type is AltairDataType.QUANTITATIVE:
-            x_axis_bounds = [dataframe[x_func_name].min() - 1, dataframe[x_func_name].max() + 1]
-            bar_chart.encoding.x.scale = alt.Scale(domain=x_axis_bounds)
+        y_func_name = self.y_func.name
         
+        scatter_plot = px.scatter(dataframe, x=x_func_name, y=y_func_name, color="Run Name", symbol="Crystal Type")
+
         with st.container():
-            st.altair_chart(bar_chart, use_container_width=True)
+            st.plotly_chart(scatter_plot, use_container_width=True)
             if len(self.invalid_points.keys()) > 0:
                 first_key = next(iter(self.invalid_points))
                 num_invalid_points = len(self.invalid_points[first_key])
-                st.text(f"There are {num_invalid_points} invalid points.")
+                st.text(f"There was a problem fitting {num_invalid_points} points.")
 
                 df = pd.DataFrame(self.invalid_points)
                 df.index.name = "Invalid Points"

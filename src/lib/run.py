@@ -7,8 +7,8 @@ from aenum import MultiValueEnum
 from ROOT import TFile
 
 class CrystalType(Enum):
-    Na22 = enum.auto()
-    Co60 = enum.auto()
+    Na22 = "Na-22"
+    Co60 = "Co-60"
     Tmp = enum.auto()
 
 class PeakType(MultiValueEnum):

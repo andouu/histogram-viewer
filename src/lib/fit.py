@@ -8,8 +8,6 @@ from scipy.signal import find_peaks
 from .run import Run, PeakType
 from .plot import q_branch_to_dataframe
 
-ROOT_CACHE_FILE_PATH = "/Users/andou/Documents/Pioneer/midas-stuff/streamlit_cache.root"
-
 def _fit(histogram, center: float, percent_margin: float = 4):
     margin_as_decimal = float(percent_margin / 100)
     x_lower_bound, x_upper_bound = (center * (1 - margin_as_decimal), center * (1 + margin_as_decimal))
