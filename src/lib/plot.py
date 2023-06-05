@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import plotly.express as px
 import os
+import json
 
 from ROOT import TFile, TH1F
 from .run import Run, CrystalType
@@ -12,7 +13,9 @@ from .path import get_file_stem
 # Helper Functions
 # -----
 
-CACHE_DIR = "/Users/andou/Documents/Pioneer/midas-stuff/streamlit-cache"
+with open("./config.json", "r") as config:
+    data = json.load(config)
+    CACHE_DIR = data["cacheDir"]
 
 def _cache_t_file_path(t_file: TFile):
     return os.path.join(CACHE_DIR, f"{get_file_stem(t_file.GetName())}.root")

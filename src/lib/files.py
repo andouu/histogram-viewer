@@ -1,9 +1,13 @@
+import json
+
 from os import path
 from glob import glob
 from .path import get_file_stem
 from .run import Run
 
-ROOT_FILES_DIR = "/Users/andou/Documents/Pioneer/midas-stuff/data"
+with open("./config.json", "r") as config:
+    data = json.load(config)
+    ROOT_FILES_DIR = data["rootFilesDir"]
 
 def get_root_files_in_dir(dir=ROOT_FILES_DIR):
     if not path.isdir(dir):
