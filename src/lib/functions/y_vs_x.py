@@ -12,10 +12,10 @@ from .graph_function import GraphingFunction, Selector, AltairDataType
 from ..run import Run
 from ..fit import get_peaks
 
-def get_q(*, t_file, run: Run):
+def get_q(*, t_file: TFile, run: Run):
     return get_peaks(t_file, run)
 
-def get_run_name(*, t_file, run: Run):
+def get_run_name(*, t_file: TFile, run: Run):
     return run.name
 
 # =====================================================================
@@ -135,7 +135,6 @@ class AnyXAnyY(GraphingFunction):
         self._update_funcs()
 
         if MULTIPROCESS:
-
             self.runs = runs
             self.on_start()
 
