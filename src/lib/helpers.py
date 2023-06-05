@@ -1,11 +1,6 @@
 import streamlit as st
 
 from math import ceil
-from streamlit_extras.app_logo import add_logo
-from streamlit_extras.let_it_rain import rain
-
-def display_uw_logo():
-    add_logo("assets/uw.png", height=110)
 
 def calculate_number_of_rows(num_columns, num_elements):
     return ceil(num_elements / num_columns)

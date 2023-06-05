@@ -2,10 +2,7 @@
 
 import streamlit as st
 
-from lib.helpers import display_uw_logo
-
 st.set_page_config(layout="wide")
-display_uw_logo()
 
 st.markdown(
     """
